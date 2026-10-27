@@ -1,98 +1,43 @@
-# Nugen Cookbook
+# ShopEase E-Commerce AI - Nugen Domain Alignment
 
-<img src="https://nugen.in/logo.png" alt="Nugen Logo" width="200"/>
+This repository implements an end-to-end domain-aligned AI system for **ShopEase E-Commerce** using the **Nugen Intelligence** API.
 
-Nugen Intelligence develops domain-aligned foundation models and agentic workflows.
+The project aligns foundation models on proprietary ShopEase customer support, seller policy, escalation, and legal documentation, and executes automated inference workloads to satisfy the Nugen developer credit program ($100+ usage target).
 
-The Nugen Cookbook provides example code and guides for common tasks using the [Nugen API](https://docs.nugen.in). These examples demonstrate how to leverage Nugen's technology in various regulated industries.
+---
 
-## Prerequisites
+## 📁 Repository Contents
 
-To use these recipes, you'll need a Nugen API key. You can get one by [creating a free Nugen account](https://nugen.in/request-access?ref=githubcookbook).
+* `DATA/`: ShopEase E-Commerce Knowledge Base (PDFs + 60,000+ character consolidated domain text `shopease_ecommerce_knowledge_base.txt`).
+* `align_model.py`: Automated pipeline for uploading documents, generating benchmarks, training alignment projects, and deploying models.
+* `inference_app.py`: High-throughput workload generator & interactive chat client for deployed aligned models.
+* `test_connection.py`: API connection, authentication, and deployed model inspector.
+* `deployed_model.json`: Active deployed model metadata and ID.
+* `SKILL.md`: Detailed Antigravity operational skill guide.
+* `.env`: Stores Nugen API credentials.
 
-While most code examples are in Python, the concepts can be applied to any language. For implementation examples in other languages (cURL, GO, JavaScript, PHP, and Java), refer to our [API reference](https://docs.nugen.in/api-reference/).
+---
 
-To get the most out of these recipes, we recommend starting with our [Getting Started guide](guides/getting_started/guide.ipynb) to familiarize yourself with key concepts.
+## ⚡ Quick Start
 
-## Table of Recipes
+### 1. Check API Connection
+```powershell
+python test_connection.py
+```
 
-### Getting Started
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Getting Started with Nugen](guides/getting_started/guide.ipynb) | Learn the basics of using Nugen API | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/getting_started/guide.ipynb) |
-| [Understanding Nugen Models](guides/understanding_nugen/guide.ipynb) | Explore the different Nugen models and their capabilities | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/understanding_nugen/guide.ipynb) |
+### 2. Align an E-Commerce Model
+```powershell
+python align_model.py --auto --name "ShopEase E-Commerce Model"
+```
 
-### Framework Integrations
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Nugen with LlamaIndex](guides/nugen_api_with_llamaindex/guide.ipynb) | Integrate Nugen API with LlamaIndex framework | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/nugen_api_with_llamaindex/guide.ipynb) |
-| [Nugen with LangChain](guides/nugen_api_with_langchain/guide.ipynb) | Integrate Nugen API with LangChain framework | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/nugen_api_with_langchain/guide.ipynb) |
+### 3. Run Inference Workloads (To hit $100+ credit target)
+```powershell
+python inference_app.py
+```
+Select **Option 2** to run automated batch workloads through your aligned model.
 
-### Advanced Capabilities
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Using Reasoning for Routine Generation](guides/using_reasoning_for_routine_generation_with_nugen/guide.ipynb) | Leverage Nugen's reasoning capabilities for routine generation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/using_reasoning_for_routine_generation_with_nugen/guide.ipynb) |
+---
 
-### Embeddings and Search
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [How to Create Embeddings](guides/create_embeddings_with_nugen/guide.ipynb) | Learn how to create embeddings using Nugen API | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/create_embeddings_with_nugen/guide.ipynb) |
-| [Embedding Wikipedia Articles for Search](guides/embedding_wikipedia_articles_for_search_with_nugen/guide.ipynb) | Build a semantic search system with Wikipedia articles | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/embedding_wikipedia_articles_for_search_with_nugen/guide.ipynb) |
-
-### Retrieval Augmented Generation (RAG)
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Generate Responses from Documents](guides/generate_responses_from_document/guide.ipynb) | Extract information and generate responses from documents | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/generate_responses_from_document/guide.ipynb) |
-| [Build Your RAG System](guides/build_your_RAG_with_nugen/guide.ipynb) | Implement a complete RAG system with Nugen | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/build_your_RAG_with_nugen/guide.ipynb) |
-
-### Alignment Workflows
-
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Alignment with the Nugen API](guides/alignment_with_nugen_api/guide.ipynb) | Build a domain-specific aligned model using the Nugen API through dataset upload, benchmark generation, benchmark editing, and aligning the model to your domain. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/alignment_with_nugen_api/guide.ipynb) |
-
-### Agentic Workflows
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Build Your Agents](guides/build_your_agents/guide.ipynb) | Create autonomous agents using Nugen's agentic capabilities | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/build_your_agents/guide.ipynb) |
-
-### Build an Application Using Your Aligned Model.
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Build an Application Using Your Aligned Model](guides/build_with_nugen_api/guide.ipynb) | Follow the steps to use your aligned model with the Nugen Inference API to build your own application | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/build_with_nugen_api/guide.ipynb) |
-### Inference Workflows
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Run Inference with Nugen API](guides/inference_with_nugen_api/guide.ipynb) | Learn how to run inference using a aligned model with the Nugen Inference API. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/inference_with_nugen_api/guide.ipynb) |
-### Vision Alignment
-| Title | Description | Open in Colab |
-|-------|-------------|---------------|
-| [Vision Alignment with Nugen API](guides/Vision_alignment/guide.ipynb) | Create a Vision Alignment Model using your own image dataset for domain-specific | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nugen-in/nugen-cookbook/blob/main/guides/Vision_alignment/guide.ipynb) |
-
-## Explore Further
-
-To learn more about Nugen and its capabilities:
-- Visit our [Developer Documentation](https://docs.nugen.in)
-- Join our community discussions
-- Check out our [API reference](https://docs.nugen.in/api-reference/) for detailed endpoint documentation 
-
-## Community Contributions
-
-The Nugen Cookbook is a community-driven resource. We welcome contributions such as:
-
-- New ideas
-- Typo fixes
-- New guides
-- Improvements to existing content
-
-Before contributing:
-1. Check existing issues and pull requests to avoid duplication.
-2. Share ideas for new examples or guides on our [issues page](https://github.com/nugen-in/nugen-cookbook/issues).
-3. Review our [contribution guidelines](/CONTRIBUTING.md) for new content submissions.
-
-Your contributions help make this resource valuable for the entire developer community working with Nugen's domain-aligned foundation models and agentic workflows.
-
-
-
-
+## 📖 Complete Documentation
+For full instructions, architecture details, and troubleshooting, see [SKILL.md](file:///c:/Users/ASUS/Desktop/Testing-api/SKILL.md).
 

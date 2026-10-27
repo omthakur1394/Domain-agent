@@ -1,0 +1,7 @@
+{
+  "MODEL_ID": "model_01m5z7zn01b7nbmg",
+  "MODEL_NAME": "Domain Alignment Model 1793123607",
+  "BASE_MODEL": "Qwen/Qwen2.5-1.5B-Instruct",
+  "ALIGNMENT_ID": "alignment_01m5z7xr4yxs14y8",
+  "DEPLOYED_AT": "2026-10-27 23:25:49"
+}
