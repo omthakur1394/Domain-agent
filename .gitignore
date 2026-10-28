@@ -1,3 +1,14 @@
+# Large Datasets, Archives & Excluded Data
+DATA/
+*.pdf
+*.zip
+ai_papers/
+ai_papers.zip
+
+# Environments & Private Keys
+.env
+.env.local
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

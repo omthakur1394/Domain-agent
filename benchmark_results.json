@@ -1,12 +1,12 @@
 {
-  "model_id": "model_01m5z7zn01b7nbmg",
-  "total_queries": 100,
+  "model_id": "model_01m5z6c2z8ked8dj",
+  "total_queries": 300,
   "success_rate": "100.0%",
-  "total_tokens": 15194,
-  "prompt_tokens": 5682,
-  "completion_tokens": 9512,
-  "avg_latency_seconds": 3.18,
-  "throughput_tps": 29.92,
-  "total_seconds": 368.16,
-  "timestamp": "2026-10-27 23:33:14"
+  "total_tokens": 168481,
+  "prompt_tokens": 19086,
+  "completion_tokens": 149395,
+  "avg_latency_seconds": 12.98,
+  "throughput_tps": 38.37,
+  "total_seconds": 3954.67,
+  "timestamp": "2026-10-28 20:50:47"
 }

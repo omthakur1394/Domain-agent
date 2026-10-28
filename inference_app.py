@@ -7,6 +7,7 @@ import os
 import sys
 import json
 import time
+import argparse
 import requests
 from dotenv import load_dotenv
 
@@ -23,7 +24,7 @@ if os.path.exists(DOTENV_PATH):
 API_KEY = os.getenv("NUGEN_API_KEY", "").strip()
 BASE_URL = os.getenv("NUGEN_BASE_URL", "https://api.nugen.in").rstrip("/")
 
-def run_query(model_id, prompt, api_key, max_tokens=350):
+def run_query(model_id, prompt, api_key, max_tokens=1200):
     url = f"{BASE_URL}/api/v3/inference/chat/completions"
     headers = {
         "accept": "application/json",
@@ -39,7 +40,7 @@ def run_query(model_id, prompt, api_key, max_tokens=350):
     }
     try:
         t0 = time.time()
-        res = requests.post(url, json=payload, headers=headers, timeout=60)
+        res = requests.post(url, json=payload, headers=headers, timeout=90)
         dt = time.time() - t0
         if res.status_code == 200:
             data = res.json()
@@ -53,11 +54,22 @@ def run_query(model_id, prompt, api_key, max_tokens=350):
         return False, 0, 0, 0.0, 0.0
 
 def main():
-    api_key = API_KEY or input("Enter your Nugen API key: ").strip()
+    parser = argparse.ArgumentParser(description="Silent Benchmark & Credit Runner")
+    parser.add_argument("--batches", type=int, default=6, help="Number of batches to run")
+    parser.add_argument("--max-tokens", type=int, default=1200, help="Max tokens per completion")
+    parser.add_argument("--model", type=str, default="", help="Model ID override")
+    parser.add_argument("--auto", action="store_true", default=False, help="Run non-interactively")
+    args = parser.parse_args()
+
+    api_key = API_KEY
+    if not api_key:
+        if args.auto:
+            sys.exit("❌ Error: NUGEN_API_KEY is missing in .env")
+        api_key = input("Enter your Nugen API key: ").strip()
     if not api_key:
         sys.exit("❌ Error: API key is required.")
 
-    model_id = os.getenv("NUGEN_MODEL_ID", "")
+    model_id = args.model or os.getenv("NUGEN_MODEL_ID", "")
     if not model_id and os.path.exists("deployed_model.json"):
         try:
             with open("deployed_model.json", "r", encoding="utf-8") as f:
@@ -65,9 +77,11 @@ def main():
         except Exception:
             pass
     if not model_id:
-        model_id = input("Enter your DEPLOYED Aligned Model ID: ").strip()
-    if not model_id:
-        sys.exit("❌ Error: Model ID is required.")
+        model_id = "model_01m5z6c2z8ked8dj"  # Llama-3.2-3B fallback
+    if not args.auto and not args.model and not os.path.exists("deployed_model.json"):
+        inp = input(f"Enter DEPLOYED Model ID [default: {model_id}]: ").strip()
+        if inp:
+            model_id = inp
 
     q_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ecommerce_queries.json")
     if os.path.exists(q_file):
@@ -86,18 +100,19 @@ def main():
         ]
 
     print("=" * 65)
-    print(f" 🎯 ACTIVE ALIGNED MODEL: {model_id}")
-    print(" 🚀 SILENT BENCHMARK & CREDIT CONSUMPTION RUNNER")
+    print(f" 🎯 ACTIVE ALIGNED MODEL: {model_id} (Llama-3.2-3B)")
+    print(f" 🚀 HIGH-COMPUTE CREDIT RUNNER (max_tokens: {args.max_tokens})")
     print("=" * 65)
-    print("This mode runs quietly in the background without flooding your terminal.")
-    print("It will print the complete Benchmark & Usage Report at the end.\n")
 
-    batches_str = input(f"Loaded {len(queries)} queries. How many batches to run? [default: 1]: ").strip()
-    batches = int(batches_str) if batches_str.isdigit() else 1
+    if not args.auto and len(sys.argv) == 1:
+        batches_str = input(f"Loaded {len(queries)} queries. How many batches to run? [default: {args.batches}]: ").strip()
+        batches = int(batches_str) if batches_str.isdigit() else args.batches
+    else:
+        batches = args.batches
+
     total_tasks = batches * len(queries)
 
-    print(f"\n⏳ Starting {total_tasks} queries across {batches} batches...")
-    print("Progress: ", end="", flush=True)
+    print(f"\n⏳ Running {total_tasks} queries across {batches} batches in quiet mode...\n")
 
     success_count = 0
     fail_count = 0
@@ -122,16 +137,14 @@ def main():
             else:
                 fail_count += 1
 
-            # Clean 1-line progress bar (no text flooding)
-            pct = int((task_idx / total_tasks) * 100)
-            elapsed = time.time() - start_total_time
-            sys.stdout.write(
-                f"\rProgress: [{task_idx}/{total_tasks}] ({pct}%) | "
-                f"Tokens: {total_prompt_tok + total_comp_tok:,} | "
-                f"Elapsed: {int(elapsed)}s"
-            )
-            sys.stdout.flush()
-            time.sleep(0.5)
+            # Print clean milestone updates every 25 queries (no spam)
+            if task_idx % 25 == 0 or task_idx == total_tasks:
+                pct = int((task_idx / total_tasks) * 100)
+                elapsed_sec = int(time.time() - start_total_time)
+                elapsed_str = f"{elapsed_sec // 60}m {elapsed_sec % 60}s"
+                total_current_tok = total_prompt_tok + total_comp_tok
+                print(f"  [Milestone {pct}%] Completed {task_idx}/{total_tasks} queries | Tokens: {total_current_tok:,} | Time: {elapsed_str}")
+            time.sleep(0.2)
 
     total_time = time.time() - start_total_time
     total_tokens = total_prompt_tok + total_comp_tok
