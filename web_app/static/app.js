@@ -1,70 +1,87 @@
-// Domain AI - Client Application Logic
-// Dynamic data loading - zero hardcoding
-
 const state = {
-  models: [],
-  selectedModelId: "",
+  activeAgent: "support",
   isGenerating: false,
-  messages: []
+  messages: {
+    support: [],
+    research: []
+  },
+  sessionId: "session_" + Math.random().toString(36).substring(2, 9)
 };
 
-// DOM Elements
-const modelSelect = document.getElementById("modelSelect");
-const modelStatusText = document.getElementById("modelStatusText");
+const agentMetadata = {
+  support: {
+    title: "Customer Support Agent",
+    sub: "Fine-tuned Model: model_01m61gc299z19jd4 (ShopEase)",
+    icon: "🎧",
+    desc: "Powered by a LangChain LangGraph agent with checkpoint memory, directly fine-tuned on ShopEase marketplace procedures, counterfeit escalation hierarchy, warranties, and SLAs.",
+    placeholder: "Ask about returns, warranties, damaged goods, or seller fulfillment rules..."
+  },
+  research: {
+    title: "Research Paper Agent",
+    sub: "Fine-tuned Model: model_01m61pt5v52a9jee (200 AI Papers)",
+    icon: "🔬",
+    desc: "Powered by a LangChain LangGraph agent with checkpoint memory, directly fine-tuned on 200 landmark AI research papers, attention mechanisms, PEFT, and LoRA formulations.",
+    placeholder: "Ask about LoRA low-rank adaptation, scaled dot-product attention, or QLoRA quantization..."
+  }
+};
+
+const btnSupportAgent = document.getElementById("btnSupportAgent");
+const btnResearchAgent = document.getElementById("btnResearchAgent");
+const activeAgentTitle = document.getElementById("activeAgentTitle");
+const activeAgentSub = document.getElementById("activeAgentSub");
+const welcomeCard = document.getElementById("welcomeCard");
+const welcomeIcon = document.getElementById("welcomeIcon");
+const welcomeTitle = document.getElementById("welcomeTitle");
+const welcomeDesc = document.getElementById("welcomeDesc");
 const queryList = document.getElementById("queryList");
 const messagesContainer = document.getElementById("messagesContainer");
-const welcomeCard = document.getElementById("welcomeCard");
 const chatForm = document.getElementById("chatForm");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 const clearChatBtn = document.getElementById("clearChatBtn");
-const activeModelTitle = document.getElementById("activeModelTitle");
-const activeModelSub = document.getElementById("activeModelSub");
 
-// Initialize application
 async function init() {
-  await Promise.all([loadModels(), loadQuickQueries()]);
   setupEventListeners();
+  await loadQuickQueries("support");
 }
 
-// 1. Fetch models dynamically from backend
-async function loadModels() {
-  try {
-    const res = await fetch("/api/models");
-    const data = await res.json();
-    state.models = data.models || [];
+function selectAgent(agentId) {
+  if (state.activeAgent === agentId) return;
+  state.activeAgent = agentId;
 
-    modelSelect.innerHTML = "";
+  if (agentId === "support") {
+    btnSupportAgent.classList.add("active");
+    btnResearchAgent.classList.remove("active");
+  } else {
+    btnResearchAgent.classList.add("active");
+    btnSupportAgent.classList.remove("active");
+  }
 
-    if (state.models.length === 0) {
-      modelSelect.innerHTML = '<option value="">No models found</option>';
-      modelStatusText.textContent = "No models available";
-      return;
-    }
+  const meta = agentMetadata[agentId];
+  activeAgentTitle.textContent = meta.title;
+  activeAgentSub.textContent = meta.sub;
+  welcomeIcon.textContent = meta.icon;
+  welcomeTitle.textContent = meta.title;
+  welcomeDesc.textContent = meta.desc;
+  messageInput.placeholder = meta.placeholder;
 
-    state.models.forEach((m, idx) => {
-      const opt = document.createElement("option");
-      opt.value = m.model_id;
-      const baseName = m.base_model_id ? m.base_model_id.split("/").pop() : "Custom";
-      opt.textContent = `${baseName} (${m.deployment_status || "READY"})`;
-      modelSelect.appendChild(opt);
-    });
+  renderActiveChat();
+  loadQuickQueries(agentId);
+}
 
-    modelSelect.disabled = false;
-    state.selectedModelId = state.models[0].model_id;
-    updateActiveModelDisplay();
-    sendBtn.disabled = false;
-    modelStatusText.textContent = `${state.models.length} model(s) connected`;
-  } catch (err) {
-    console.error("Failed to load models:", err);
-    modelStatusText.textContent = "Failed to load models";
+function renderActiveChat() {
+  messagesContainer.innerHTML = "";
+  const currentMsgs = state.messages[state.activeAgent];
+  if (currentMsgs.length === 0) {
+    messagesContainer.appendChild(welcomeCard);
+  } else {
+    currentMsgs.forEach((m) => appendMessageUI(m.role, m.content, m.meta));
   }
 }
 
-// 2. Fetch sample queries dynamically
-async function loadQuickQueries() {
+async function loadQuickQueries(agentId) {
   try {
-    const res = await fetch("/api/queries");
+    const res = await fetch(`/api/queries?agent_type=${agentId}`);
     const data = await res.json();
     const queries = data.queries || [];
 
@@ -79,25 +96,14 @@ async function loadQuickQueries() {
       });
       queryList.appendChild(btn);
     });
-  } catch (err) {
-    console.error("Failed to load queries:", err);
-    queryList.innerHTML = '<p class="text-muted">No quick queries available</p>';
-  }
-}
-
-function updateActiveModelDisplay() {
-  const m = state.models.find((item) => item.model_id === state.selectedModelId);
-  if (m) {
-    activeModelTitle.textContent = m.base_model_id || "Domain Aligned Model";
-    activeModelSub.textContent = `ID: ${m.model_id} • Status: ${m.deployment_status || "DEPLOYED"}`;
+  } catch (e) {
+    queryList.innerHTML = '<p class="query-skeleton">No queries available</p>';
   }
 }
 
 function setupEventListeners() {
-  modelSelect.addEventListener("change", (e) => {
-    state.selectedModelId = e.target.value;
-    updateActiveModelDisplay();
-  });
+  btnSupportAgent.addEventListener("click", () => selectAgent("support"));
+  btnResearchAgent.addEventListener("click", () => selectAgent("research"));
 
   messageInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -116,28 +122,27 @@ function setupEventListeners() {
   });
 
   clearChatBtn.addEventListener("click", () => {
-    state.messages = [];
-    messagesContainer.innerHTML = "";
-    if (welcomeCard) messagesContainer.appendChild(welcomeCard);
+    state.messages[state.activeAgent] = [];
+    renderActiveChat();
   });
 }
 
 async function handleSubmit() {
   const text = messageInput.value.trim();
-  if (!text || !state.selectedModelId) return;
+  if (!text || state.isGenerating) return;
 
   if (welcomeCard && welcomeCard.parentNode) {
     welcomeCard.parentNode.removeChild(welcomeCard);
   }
 
-  // 1. Add user message
-  state.messages.push({ role: "user", content: text });
-  appendMessage("user", text);
+  const agent = state.activeAgent;
+  state.messages[agent].push({ role: "user", content: text });
+  appendMessageUI("user", text);
+
   messageInput.value = "";
   messageInput.style.height = "auto";
 
-  // 2. Add loading assistant placeholder
-  const loadingEl = appendMessage("assistant", "Thinking...");
+  const loadingRow = appendMessageUI("assistant", "Agent reasoning via LangGraph...");
   state.isGenerating = true;
   sendBtn.disabled = true;
 
@@ -146,31 +151,32 @@ async function handleSubmit() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model_id: state.selectedModelId,
-        messages: state.messages,
+        agent_type: agent,
+        messages: state.messages[agent],
+        session_id: state.sessionId,
         max_tokens: 450,
-        temperature: 0.7
+        temperature: 0.3
       })
     });
 
     const data = await res.json();
-    if (res.ok && data.response) {
-      state.messages.push({ role: "assistant", content: data.response });
-      const bubble = loadingEl.querySelector(".message-bubble");
-      bubble.textContent = data.response;
+    const reply = data.response || "No response generated";
+    const bubble = loadingRow.querySelector(".message-bubble");
+    bubble.textContent = reply;
 
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      const totalTok = (data.usage?.prompt_tokens || 0) + (data.usage?.completion_tokens || 0);
-      meta.textContent = `${totalTok} tokens • ${data.latency_seconds || 0}s latency`;
-      loadingEl.appendChild(meta);
-    } else {
-      const bubble = loadingEl.querySelector(".message-bubble");
-      bubble.textContent = `Error: ${data.error || "Failed to generate response"}`;
-    }
+    const meta = document.createElement("div");
+    meta.className = "message-meta";
+    meta.textContent = `${data.latency_seconds || 0}s latency • Checkpoint Thread: ${data.thread_id || "active"}`;
+    loadingRow.appendChild(meta);
+
+    state.messages[agent].push({
+      role: "assistant",
+      content: reply,
+      meta: meta.textContent
+    });
   } catch (err) {
-    const bubble = loadingEl.querySelector(".message-bubble");
-    bubble.textContent = `Network Error: ${err.message}`;
+    const bubble = loadingRow.querySelector(".message-bubble");
+    bubble.textContent = `Error: ${err.message}`;
   } finally {
     state.isGenerating = false;
     sendBtn.disabled = false;
@@ -178,7 +184,7 @@ async function handleSubmit() {
   }
 }
 
-function appendMessage(role, text) {
+function appendMessageUI(role, text, metaText) {
   const row = document.createElement("div");
   row.className = `message-row ${role}`;
 
@@ -187,11 +193,16 @@ function appendMessage(role, text) {
   bubble.textContent = text;
   row.appendChild(bubble);
 
+  if (metaText) {
+    const meta = document.createElement("div");
+    meta.className = "message-meta";
+    meta.textContent = metaText;
+    row.appendChild(meta);
+  }
+
   messagesContainer.appendChild(row);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
   return row;
 }
 
-// Start app on page load
 document.addEventListener("DOMContentLoaded", init);
-

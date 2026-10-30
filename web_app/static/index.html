@@ -3,34 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Domain AI - Operations & Support Console</title>
+  <title>Domain AI Multi-Agent Console</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <div class="app-layout">
-    <!-- Sidebar for quick queries -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <span class="brand-badge">PRO</span>
+          <span class="brand-badge">LANGCHAIN</span>
           <h2>Domain AI</h2>
         </div>
-        <p class="brand-subtitle">Domain-Aligned Operations Console</p>
+        <p class="brand-subtitle">Fine-Tuned Multi-Agent System</p>
       </div>
 
       <div class="sidebar-section">
-        <label class="section-label">SELECT ALIGNED MODEL</label>
-        <select id="modelSelect" class="model-select" disabled>
-          <option value="">Loading deployed models...</option>
-        </select>
-        <div class="model-meta" id="modelMeta">
-          <span class="status-indicator"></span>
-          <span id="modelStatusText">Connecting...</span>
+        <label class="section-label">SELECT AGENT</label>
+        <div class="agent-selector-cards" id="agentSelector">
+          <button class="agent-card-btn active" data-agent="support" id="btnSupportAgent">
+            <div class="agent-card-title">
+              <span class="agent-icon">🎧</span>
+              <strong>Customer Support Agent</strong>
+            </div>
+            <p class="agent-card-desc">ShopEase marketplace, returns, counterfeit & legal escalation</p>
+            <span class="agent-badge">ShopEase Fine-Tuned</span>
+          </button>
+
+          <button class="agent-card-btn" data-agent="research" id="btnResearchAgent">
+            <div class="agent-card-title">
+              <span class="agent-icon">🔬</span>
+              <strong>Research Paper Agent</strong>
+            </div>
+            <p class="agent-card-desc">200 AI research papers, architectures, PEFT & LoRA</p>
+            <span class="agent-badge">AI Research Fine-Tuned</span>
+          </button>
         </div>
       </div>
 
       <div class="sidebar-section quick-section">
-        <label class="section-label">QUICK DOMAIN QUERIES</label>
+        <label class="section-label" id="quickQueriesLabel">AGENT SAMPLE QUERIES</label>
         <div class="query-list" id="queryList">
           <div class="query-skeleton">Loading queries...</div>
         </div>
@@ -38,66 +49,65 @@
 
       <div class="sidebar-footer">
         <div class="stat-pill">
-          <span class="stat-label">Provider</span>
-          <span class="stat-value">Nugen Intelligence</span>
+          <span class="stat-label">Agent Framework</span>
+          <span class="stat-value">LangGraph + Checkpointer</span>
         </div>
       </div>
     </aside>
 
-    <!-- Main Chat Workspace -->
-    <main class="chat-workspace">
-      <!-- Top Bar -->
-      <header class="chat-header">
-        <div class="active-model-info">
-          <span class="active-dot"></span>
-          <div>
-            <h3 id="activeModelTitle">Domain Aligned Assistant</h3>
-            <p id="activeModelSub" class="active-sub">Initializing...</p>
+    <div class="main-content-wrapper">
+      <main id="chatWorkspace" class="chat-workspace view-panel active">
+        <header class="chat-header">
+          <div class="active-model-info">
+            <span class="active-dot"></span>
+            <div>
+              <h3 id="activeAgentTitle">Customer Support Agent</h3>
+              <p id="activeAgentSub" class="active-sub">Fine-tuned Model: model_01m61gc299z19jd4 (ShopEase)</p>
+            </div>
           </div>
-        </div>
-        <button id="clearChatBtn" class="secondary-btn" title="Clear Chat History">Clear Chat</button>
-      </header>
-
-      <!-- Messages Stream -->
-      <section class="messages-container" id="messagesContainer">
-        <div class="welcome-card" id="welcomeCard">
-          <div class="welcome-icon">⚡</div>
-          <h3>Domain-Aligned Assistant</h3>
-          <p>
-            Trained on specialized domain customer support, legal escalation, and seller fulfillment guidelines.
-          </p>
-          <div class="welcome-tags">
-            <span class="tag">100% Policy Grounded</span>
-            <span class="tag">Zero Hallucination</span>
-            <span class="tag">Instant Verification</span>
+          <div class="header-actions">
+            <button id="clearChatBtn" class="secondary-btn" title="Clear Chat History">Clear Chat</button>
           </div>
-        </div>
-      </section>
+        </header>
 
-      <!-- Input Bar -->
-      <footer class="input-area">
-        <form id="chatForm" class="chat-form">
-          <textarea
-            id="messageInput"
-            class="chat-textarea"
-            placeholder="Ask about returns, warranties, damaged goods, or seller fulfillment rules..."
-            rows="1"
-          ></textarea>
-          <button type="submit" id="sendBtn" class="send-btn" disabled>
-            <span>Send</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-          </button>
-        </form>
-        <div class="input-hint">
-          <span>Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for a new line.</span>
-        </div>
-      </footer>
-    </main>
+        <section class="messages-container" id="messagesContainer">
+          <div class="welcome-card" id="welcomeCard">
+            <div class="welcome-icon" id="welcomeIcon">🎧</div>
+            <h3 id="welcomeTitle">Customer Support Agent</h3>
+            <p id="welcomeDesc">
+              Powered by a LangChain LangGraph agent with checkpoint memory, directly fine-tuned on ShopEase marketplace procedures, counterfeit escalation hierarchy, warranties, and SLAs.
+            </p>
+            <div class="welcome-tags">
+              <span class="tag">LangGraph Checkpointer</span>
+              <span class="tag">Domain Aligned</span>
+              <span class="tag">Zero Hallucination</span>
+            </div>
+          </div>
+        </section>
+
+        <footer class="input-area">
+          <form id="chatForm" class="chat-form">
+            <textarea
+              id="messageInput"
+              class="chat-textarea"
+              placeholder="Ask about returns, warranties, damaged goods, or seller fulfillment rules..."
+              rows="1"
+            ></textarea>
+            <button type="submit" id="sendBtn" class="send-btn">
+              <span>Send</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+            </button>
+          </form>
+          <div class="input-hint">
+            <span>Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for a new line.</span>
+          </div>
+        </footer>
+      </main>
+    </div>
   </div>
 
   <script src="/static/app.js"></script>
 </body>
 </html>
-

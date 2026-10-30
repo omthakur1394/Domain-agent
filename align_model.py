@@ -1,15 +1,3 @@
-"""
-Nugen Intelligence - Automated Model Alignment & Deployment Pipeline
-
-This script automates the full workflow from the Nugen Cookbook:
-1. Upload domain document / dataset
-2. Generate benchmark questions and answers
-3. Create Alignment Project with base model
-4. Monitor alignment training progress until READY
-5. Deploy the aligned model and poll until DEPLOYED
-6. Save deployed model ID for inference
-"""
-
 import os
 import sys
 import time
